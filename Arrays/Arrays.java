@@ -7,7 +7,7 @@ public class Arrays
         int size;
         Scanner sc = new Scanner(System.in);
         size = sc.nextInt();
-        int array[] = {0,1,2,3,4,5,6,7,8,9};
+        int array[] = new int[size];
         System.out.printf("Size entered is %d",size);
         for(int i: array){
             System.out.println(i);
