@@ -1,0 +1,10 @@
+    # print(sll.search("D"))
+    # print("Length %d\n", sll.length())
+    # sll.insertionAtBeginning("A")
+    # sll.insertionAtEnd("F")
+    # sll.insertionAtPosition( 3, "E")
+    # sll.deletionAtBeginning()
+    # sll.deletionAtEnd()
+    # sll.deletionAtPosition(1)
+    # sll.traverse()
+    
