@@ -1,17 +1,15 @@
 class Node{
     String data;
     Node next;
-    Node prev;
 
     public Node(String data){
         this.data = data;
         this.next = null;
-        this.prev = null;
     }
 }
     
 
-public class DoubleLinkedList {
+public class SingleLinkedList {
     static Node head;
 
 
@@ -29,18 +27,9 @@ public class DoubleLinkedList {
     
     public static void traverse(){
         Node temp = head;
-        Node temp2 = temp;
-        System.out.print("Forward: ");
         while(temp!=null){
-            System.out.printf("%s ",temp.data);
-            temp2 = temp;
+            System.out.println(temp.data);
             temp = temp.next;
-        }
-
-        System.out.print("\nReverse: ");
-        while(temp2!=null){
-            System.out.printf("%s ",temp2.data);
-            temp2 = temp2.prev;
         }
     }
     
@@ -58,9 +47,6 @@ public class DoubleLinkedList {
     public static void insertionAtBeginning(String data){
         Node temp = new Node(data);
         temp.next = head;
-        if (head != null){
-            head.prev = temp;
-        }
         head = temp;
     }
     
@@ -75,7 +61,6 @@ public class DoubleLinkedList {
                 head_temp = head_temp.next;
             }
             head_temp.next = temp;
-            temp.prev = head_temp;
         }
     }
     
@@ -91,12 +76,8 @@ public class DoubleLinkedList {
         for(int i = 0; i < position && headTemp.next != null; i++){
             headTemp = headTemp.next;
         }
-
         temp.next = headTemp.next;
-        headTemp.next.prev = temp;
-
         headTemp.next = temp;
-        temp.prev = headTemp;
     }
     
     public static void deletionAtBeginning(){
@@ -105,7 +86,6 @@ public class DoubleLinkedList {
             return;
         }
         head = (head).next;
-        head.prev = null;
     }
     
     public static void deletionAtEnd(){
@@ -124,7 +104,7 @@ public class DoubleLinkedList {
         while(temp.next.next != null){
             temp = temp.next;
         }
-        temp.next.prev=null;
+    
         temp.next = null;
     }
     
@@ -146,7 +126,6 @@ public class DoubleLinkedList {
         }
     
         if(temp.next != null){
-            temp.next.next.prev = temp;
             temp.next = temp.next.next;
         }
         else{
@@ -157,9 +136,9 @@ public class DoubleLinkedList {
 
 
     public static void main(String [] args){
-        insertionAtBeginning("D");
-        insertionAtBeginning("C");
-        insertionAtBeginning("B");
+        insertionAtEnd("B");
+        insertionAtEnd("C");
+        insertionAtEnd("D");
         traverse();
         System.out.println(search("D"));
         System.out.printf("Length %d\n", length());
