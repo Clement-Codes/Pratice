@@ -72,6 +72,61 @@ void insertAtPosition(Node** cll, int position, char data){
     }
 }
 
+void deleteAtBeginning(Node** cll){
+    if((*cll) == nullptr){
+        cout<<"No Node";
+        return;
+    }
+    if((*cll)->next == nullptr){
+        *cll = nullptr;
+        return;
+    }
+    if((*cll)->next->next == nullptr){
+        (*cll)->next = nullptr;
+        return;
+    }
+    Node* head = (*cll)->next;
+    (*cll)->next = (*cll)->next->next;
+    delete head;
+    return;
+}
+
+void deleteAtEnd(Node** cll){
+    Node* temp = *cll;
+    while(temp!=nullptr && temp->next!=nullptr && temp->next!=*cll){
+        temp = temp->next;
+    }
+    if(temp==nullptr||temp->next==nullptr){
+        *cll = nullptr;
+        return;
+    }
+    temp->next = (*cll)->next;
+    delete (*cll);
+    *cll = temp; 
+}
+
+void deleteAtPosition(Node** cll, int position){
+    Node* temp = (*cll)->next;
+    for(int i = 1; i<position && temp!=nullptr && temp->next!=nullptr && temp->next!=*cll; i++){
+        
+        temp = temp->next;
+        cout <<temp->data;
+    }
+    if(temp==nullptr||temp->next==nullptr){
+        *cll = nullptr;
+        return;
+    }
+    if(temp->next == *cll){
+        temp->next = temp->next->next;
+        delete *cll;
+        (*cll) = temp;
+        return;
+    }
+    temp->next = temp->next->next;
+    
+}
+
+
 int main(){
     Node* cll = new Node('D');
     traverse(cll);
@@ -81,6 +136,12 @@ int main(){
     insertAtEnd(&cll, 'F');
     insertAtPosition(&cll, 4, 'E');
     insertAtPosition(&cll, 6, 'G');
+    traverse(cll);
+    deleteAtBeginning(&cll);
+    deleteAtEnd(&cll);
+    traverse(cll);
+
+    deleteAtPosition(&cll, 3);
     traverse(cll);
     return 0;
 }
