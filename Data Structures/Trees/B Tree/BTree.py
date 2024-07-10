@@ -1,18 +1,148 @@
 class Node:
-    def __init__(self, leaf = False) -> None:
+    def __init__(self, size, leaf = False) -> None:
         self.leaf = leaf
         self.keys = []
         self.childrens = []
+        self.n = 0
+        self.size = size
 
+    def findKey(self, x):
+        temp = 0
+        while x > self.keys[temp] and x < len(self.keys):
+            temp += 1
+        return temp
+    
+    def delete(self, x):
+        i = self.findKey(x)
+        if i <self.n and self.keys[i] == x:
+            if self.leaf:
+                self.deleteAtLeaf(i, x)
+            else:
+                self.deleteAtNode(i, x)
+        if len(self.childrens) == 0:
+            print("No Node found")
+        if self.childrens[i].n < self.size:
+            self.fill(i)
+        flag = i == self.n
+        if flag:
+            self.childrens[i-1].remove(x)
+        else:
+            self.childrens[i].remove(x)
+
+    def fill(self, i):
+        if i!=0 and self.childrens[i-1].n >= self.t:
+            self.borrowPrev(i)
+        elif i!=self.n and self.childrens[i+1].n >= self.t:
+            self.borrowSuccessor(i)
+        else:
+            if i!=self.n:
+                self.merge(i)
+            else:
+                self.merge(i-1)
+    
+
+    def borrowPrev(self, i):
+        child = self.childrens[i]
+        prev = self.childrens[i-1]
+
+        n = child.n - 1
+        while n >= 0:
+            child.keys[n+1] = child.keys[n]
+
+        if not child.leaf:
+            n = child.n + 1
+            while n >= 0:
+                child.childrens[n+1] = child.childrens[n]
+            child.childrens[0] = prev.childrens[prev.n]
+
+        child.keys[0] = self.keys[i - 1]
+        self.keys[i - 1] = prev.keys[prev.n - 1]
+
+        child.n += 1
+        prev.n -= 1
+
+    def borrowSuccessor(self, i):
+        child = self.childrens[i]
+        next = self.childrens[i+1]
+
+        child.keys[child.n] = self.keys[i]
+        self.keys[i] = next.keys[0]
+
+        if not child.leaf:
+            child.children[child.n] = next.childern[0] 
+        
+        n = next.n - 1
+        while n > 0:
+            next.keys[n - 1] = next.keys[n]
+
+        if not child.leaf:
+            n = next.n 
+            while n > 0:
+                next.children[n - 1] = next.children[n]
+        
+        child.n += 1
+        next.n -= 1
+
+
+    def deleteAtLeaf(self, i):
+        while i<self.n-1:
+            self.keys[i] = self.keys[i+1]
+            i +=1
+        self.n -= 1
+
+    def deleteAtNode(self, i):
+        if self.childrens[i].n >= self.size:
+            ch = self.getPredecessor()
+            self.keys[i] = ch
+            self.childrens[i].remove(ch)
+        elif self.childrens[i + 1].n >= self.size:
+            ch = self.getSuccessor()
+            self.keys[i] = ch
+            self.childrens[i+1].remove(ch)
+        else:
+            self.merge(i)
+            self.childrens[i].remove(self.keys[i])
+
+    def merge(self, ii):
+        child = self.childrens[ii]
+        next = self.childrens[ii+1]
+        child.keys[self.t-1] = self.keys[ii]
+        for i in range(len(next.keys)):
+            child.keys[self.t + i] = next.keys[i]
+        
+        if not next.leaf:
+            for i in range(len(next.keys) + 1):
+                child.childrens[self.t + i] = next.childrens[i]
+        
+        for i in range(ii+1, len(next.keys)):
+            self.keys[i - 1] = next.keys[i]
+        
+        for i in range(ii+2, len(next.keys)):
+            self.childrens[i - 1] = next.childrens[i]
+
+        child.n += next.n + 1
+        self.n -=1
+
+    def getPredecessor(self, i):
+        ch = self.childrens[i]
+        while ch.leaf is False:
+            ch = ch.childrens[ch.n]
+        return ch.key[ch.n - 1]
+    
+    def getSuccessor(self, i):
+        ch = self.childrens[i+1]
+        while ch.leaf is False:
+            ch = ch.childrens[0]
+        return ch.key[0]   
 class BTree:
     def __init__(self, size) -> None:
-        self.root = Node(True)
+        self.root = Node(True, size)
         self.size = size
 
     def insertion(self, x):
         root = self.root
         if len(root.keys) == (2 * self.size) - 1:
-            temp = Node()
+            temp = Node(False, self.size)
             temp.childrens.insert(0, root)
             self.root = temp
             self.split(self.root, 0)
@@ -29,6 +159,7 @@ class BTree:
                 i -= 1
             i = i + 1
             root.keys[i] = x
+            root.n +=1
         else:
             while  i>=0 and x[0] < root.keys[i][0]:
                 i -= 1
@@ -42,11 +173,14 @@ class BTree:
 
     def split(self, root, i):
         x = root.childrens[i]
-        temp = Node(x.leaf)
+        temp = Node(x.leaf, self.size)
         root.childrens.insert(i+1, temp)
+        root.n += 1
         root.keys.insert(i, x.keys[self.size - 1])
         temp.keys = x.keys[self.size:]
+        temp.n = len(x) - self.size
         x.keys = x.keys[0: self.size-1]
+        x.n = self.size - 1
         if not x.leaf:
             temp.childrens = x.childrens[self.size: ]
             x.childrens = x.childrens[0: self.size]
