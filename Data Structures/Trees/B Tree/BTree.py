@@ -8,31 +8,36 @@ class Node:
 
     def findKey(self, x):
         temp = 0
-        while x > self.keys[temp] and x < len(self.keys):
+        while x > self.keys[temp][0] and x < len(self.keys):
             temp += 1
         return temp
     
     def delete(self, x):
         i = self.findKey(x)
-        if i <self.n and self.keys[i] == x:
+        if i <self.n and self.keys[i][0] == x:
             if self.leaf:
-                self.deleteAtLeaf(i, x)
+                self.deleteAtLeaf(i)
             else:
-                self.deleteAtNode(i, x)
-        if len(self.childrens) == 0:
-            print("No Node found")
+                self.deleteAtNode(i)
+
+        if self.leaf:
+            print("No Node found", self.keys)
+            return
+        
+
+            
         if self.childrens[i].n < self.size:
             self.fill(i)
         flag = i == self.n
         if flag:
-            self.childrens[i-1].remove(x)
+            self.childrens[i-1].delete(x)
         else:
-            self.childrens[i].remove(x)
+            self.childrens[i].delete(x)
 
     def fill(self, i):
-        if i!=0 and self.childrens[i-1].n >= self.t:
+        if i!=0 and self.childrens[i-1].n >= self.size:
             self.borrowPrev(i)
-        elif i!=self.n and self.childrens[i+1].n >= self.t:
+        elif i!=self.n and self.childrens[i+1].n >= self.size:
             self.borrowSuccessor(i)
         else:
             if i!=self.n:
@@ -106,19 +111,20 @@ class Node:
     def merge(self, ii):
         child = self.childrens[ii]
         next = self.childrens[ii+1]
-        child.keys[self.t-1] = self.keys[ii]
+        child.keys.append(self.keys[ii])
+
         for i in range(len(next.keys)):
-            child.keys[self.t + i] = next.keys[i]
+            child.keys.append(next.keys[i])
         
         if not next.leaf:
             for i in range(len(next.keys) + 1):
-                child.childrens[self.t + i] = next.childrens[i]
+                child.childrens.append(next.childrens[i])
         
-        for i in range(ii+1, len(next.keys)):
-            self.keys[i - 1] = next.keys[i]
+        for i in range(ii+1, len(self.keys)):
+            self.keys[i - 1] = self.keys[i]
         
-        for i in range(ii+2, len(next.keys)):
-            self.childrens[i - 1] = next.childrens[i]
+        for i in range(ii+2, len(self.keys)+1):
+            self.childrens[i - 1] = self.childrens[i]
 
         child.n += next.n + 1
         self.n -=1
@@ -136,13 +142,29 @@ class Node:
         return ch.key[0]   
 class BTree:
     def __init__(self, size) -> None:
-        self.root = Node(True, size)
+        self.root = Node(size, True)
         self.size = size
+
+
+    def deletion(self, x):
+        if self.root is None:
+            print("empty")
+
+        self.root.delete(x)
+
+        if self.root.n == 0:
+            temp = self.root
+            if temp.leaf:
+                self.root = None
+            else:
+                self.root = temp.childrens[0]
+            del temp
+
 
     def insertion(self, x):
         root = self.root
         if len(root.keys) == (2 * self.size) - 1:
-            temp = Node(False, self.size)
+            temp = Node(self.size, False)
             temp.childrens.insert(0, root)
             self.root = temp
             self.split(self.root, 0)
@@ -173,12 +195,12 @@ class BTree:
 
     def split(self, root, i):
         x = root.childrens[i]
-        temp = Node(x.leaf, self.size)
+        temp = Node(self.size, x.leaf)
         root.childrens.insert(i+1, temp)
         root.n += 1
         root.keys.insert(i, x.keys[self.size - 1])
         temp.keys = x.keys[self.size:]
-        temp.n = len(x) - self.size
+        temp.n = x.size - self.size
         x.keys = x.keys[0: self.size-1]
         x.n = self.size - 1
         if not x.leaf:
@@ -187,12 +209,13 @@ class BTree:
 
 
     def printBST(self, l = 0, root = None):
-        print("Level", l,end=": ")
         if root:
+            print("Level", l, root.leaf, end=": ")
+
             for i in root.keys:
                 print(i, end=" ")
             print()
-            if len(root.childrens) > 0 :
+            if not root.leaf :
                 l += 1
                 for i in root.childrens:
                     self.printBST(l, i)
@@ -204,10 +227,15 @@ if __name__ == "__main__":
     bst = BTree(size=3)
 
     for i in range(20):
-        bst.insertion((i, 2*i))
+        bst.insertion((i, i))
     
     bst.printBST()
 
+    for i in range(20):
+        print(i)
+        bst.deletion(i)
+
+    bst.printBST()
 
 
 
