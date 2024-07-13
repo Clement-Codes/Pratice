@@ -21,21 +21,102 @@ class BTree:
             i +=1
         return i
 
-
     def getPredecessor(self, node, i):
-        temp = node.child[i]
+        temp = node.childs[i]
         while not temp.leaf:
-            temp = temp.child[temp.n]
-            
-    def deletion(self, x, node = None):
-        if node is Node:
-            self.deletion(x, self.root)
-            return
+            temp = temp.childs[temp.n]
+
+    def getSuccessor(self, node, i):
+        temp = node.childs[i + 1]
+        while not temp.leaf:
+            temp = temp.childs[0]
+
+    def merge(self, ii, node):
+        child = node.childs[ii]
+        next = node.childs[ii+1]
+
+        child.keys.append(node.keys[ii])
         
-        i = self.getMinimum()
-        if i < node.n and node.keys[i] == x:
+        for i in next.keys:
+            child.keys.append(i)
+        
+        if not child.leaf:
+            for i in next.childs:
+                child.childs.append(i)
+
+        node.keys.remove(node.keys[ii])
+
+        node.childs.remove(next)
+
+        child.n = child.n + 1 + next.n
+        node.n -= 1
+
+
+    def deleteFromPrev(self, i, node):
+        prev = node.childs[i-1]
+        child = node.childs[i]
+        
+        child.keys.insert(0, node.keys[i-1])
+        node.keys[i-1] = prev.keys[prev.n-1]
+        prev.keys.remove(prev.keys[prev.n-1])
+        
+        if not child.leaf:
+            child.childs.insert(0, prev.childs[prev.n])
+            prev.childs.remove(prev.childs[prev.n])
+        
+
+        child.n += 1
+        prev.n -= 1
+
+    def deleteFromNext(self, i, node):
+        child = node.childs[i]
+        next = node.childs[i + 1]
+
+        child.keys.append(node.keys[i - 1])
+        node.keys[i - 1] = next.keys[0]
+        next.keys.remove(next.keys[0])
+
+        if not child.leaf:
+            child.childs.append(next.childs[0])
+            next.childs.remove(next.childs[0])
+        
+        child.n += 1
+        next.n -= 1
+
+
+
+    def fill(self, i, node):
+        print("yeap", node.keys)
+
+        if i!= 0 and node.childs[i-1].n >= self.size:
+            self.deleteFromPrev(i, node)
+        elif i!=node.n and node.childs[i].n >= self.size:
+            self.deleteFromNext(i, node)
+        else:
+            if i == node.n:
+                self.merge(i-1, node.child[i])
+            else:
+                self.merge(i, node)
+
+
+    def predeletion(self, x):
+        if self.root == None:
+            print("No node to delete")
+
+        self.deletion(x, self.root)
+
+        if self.root.n == 0:
+            if not self.root.leaf:
+                self.root = self.root.childs[0]
+            else:
+                self.root = None
+
+    def deletion(self, x, node):
+        print('--',x, node.keys)
+        i = self.getMinimum(node, x)
+        if i < node.n and node.keys[i][0] == x:
             if node.leaf:
-                    node.keys.remove(x)
+                    node.keys = node.keys[:i] + node.keys[i+1:]
                     node.n -= 1
             else:
                 if node.childs[i].n >= self.size:
@@ -46,9 +127,20 @@ class BTree:
                     temp = self.getSuccessor()
                     node.keys[i] = temp
                     self.deletion(temp, node.child[i+1])
-
+                else:
+                    self.merge(i, node)
+                    self.deletion(temp, node.child[i])
         else:
-            pass
+            flag = i == node.n
+            if not node.leaf:
+                if node.childs[i].n < self.size:
+                    self.fill(i, node)
+                if flag:
+                    self.deletion(x, node.childs[i - 1])
+                else:
+                    self.deletion(x, node.childs[i])
+            else:
+                print("Nope")
 
 
     def insertion(self, key):
@@ -75,7 +167,6 @@ class BTree:
             node.keys.insert(i, key)
             node.n += 1
         else:
-            print(i, node.childs)
             if node.childs[i].n == (2*self.size) - 1:
                 self.split(i, node)
                 if key[0] > node.keys[i][0]:
@@ -100,15 +191,13 @@ class BTree:
 
     def printLevel(self):
         queue = []
-        queue.append([0,self.root])
-        print(queue)
+        queue.append([0, 0, self.root])
         while queue:
-            (level, x) = queue.pop(0)
-            print("Level ", level, ": ", x.keys)
+            (level, j, x) = queue.pop(0)
+            print("Level ", level, "(",j,"): ", x.keys)
             if not x.leaf:
-                for i in x.childs:
-                   
-                    queue.append([level+1, i])
+                for i, j in enumerate(x.childs):
+                    queue.append([level+1, i, j])
 
         
 
@@ -116,9 +205,14 @@ if __name__ == "__main__":
     bst = BTree(3)
     for i in range(20):
         bst.insertion([i,i])
+    bst.printLevel()
+
+    print("-------------")
+
+    for i in range(20):
+        bst.predeletion(i)
         bst.printLevel()
 
-    bst.printLevel()
 
 # class Node:
 #     def __init__(self, size, leaf = False) -> None:
