@@ -207,11 +207,11 @@ if __name__ == "__main__":
         bst.insertion([i,i])
     bst.printLevel()
 
-    print("-------------")
+    # print("-------------")
 
-    for i in range(20):
-        bst.predeletion(i)
-        bst.printLevel()
+    # for i in range(20):
+    #     bst.predeletion(i)
+    #     bst.printLevel()
 
 
 # class Node:
