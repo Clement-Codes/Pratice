@@ -101,20 +101,24 @@ class BST{
         }
 
         void levelOrder(){
-            int level = 0;
+            queue<int> level;
+            level.push(0);
             queue<Node*> q;
             q.push(root);
             while(!q.empty()){
                 Node* temp = q.front();
-                cout << "Level " << level <<": ";
+                int l = level.front();
+                cout << "Level " << l <<": ";
                 for(int i: temp->keys) cout<<i<<" ";
                 q.pop();
+                level.pop();
                 cout<<endl;
                 if (!temp->leaf){
                     for(Node* i: temp->childs){
                         q.push(i);
+                        level.push(l+1);
                     }
-                    level += 1;
+                    
                 }
                 
             }
@@ -125,13 +129,14 @@ class BST{
             while(x > (*node).keys[i] && i<node->n){
                 i += 1;
             }
+            return i;
         }
 
         void deletion_pre(int x){
-            if (root == nullptr){
+            if (root->n == 0||root == nullptr){
                 cout << "non";
             }
-            deletion(root, x);
+            deletion(root, x);      
 
             if(root->n==0){
                 if(root->leaf){
@@ -144,16 +149,16 @@ class BST{
         }
 
 
-        int getPredecessor(Node* node){
-            Node* temp = node->childs[0];
+        int getPredecessor(Node* node, int i){
+            Node* temp = node->childs[i];
             while(!temp->leaf){
                 temp = temp->childs[temp->n];
             }
             return temp->keys[temp->n - 1];
         }
         
-        int getSuccessor(Node* node){
-            Node* temp = node->childs[node->n];
+        int getSuccessor(Node* node, int i){
+            Node* temp = node->childs[i+1];
             while(!temp->leaf){
                 temp = temp->childs[0];
             }
@@ -161,16 +166,79 @@ class BST{
         }
 
         void merge(Node* node, int i){
+            
+
             Node* child = node->childs[i];
-            Node* prev = node->childs[i-1];
+            Node* prev = node->childs[i+1];
+            
 
             child->keys.push_back(node->keys[i]);
 
-            for()
+            node->keys.erase(node->keys.begin() + i);
+            for(int ii: prev->keys) child->keys.push_back(ii);
+            for(int ii: prev->keys) prev->keys.erase(prev->keys.begin());
+
+            if(!child->leaf){
+                for(Node* ii: prev->childs) child->childs.push_back(ii);
+                for(Node* ii: prev->childs) prev->childs.erase(prev->childs.begin());
+            }
+            node->childs.erase(node->childs.begin() + (i + 1));
+            child->n += prev->n + 1;
+            node->n -= 1;
+            prev->n = 0;
         }
 
+
+        void borrowFromPrev(Node* node, int i){
+            Node* child = node->childs[i];
+            Node* prev = node->childs[i-1];
+            child->keys.push_back(node->keys[i]);
+            node->keys.erase(node->keys.begin() + i);
+            node->keys.insert(node->keys.begin() + i, prev->keys[prev->n - 1]);
+            prev->keys.pop_back();
+            if(!child->leaf){
+                node->childs.insert(node->childs.begin() + i, prev->childs[prev->n]);
+                prev->childs.pop_back();
+            }
+            child->n += 1;
+            prev->n -= 1;
+        }
+
+        void borrowFromSucc(Node* node, int i){
+            Node* child = node->childs[i];
+            Node* next = node->childs[i+1];
+            child->keys.push_back(node->keys[i]);
+            node->keys.erase(node->keys.begin() + i);
+            node->keys.insert(node->keys.begin() + i, next->keys[0]);
+            next->keys.erase(node->keys.begin());
+            if(!child->leaf){
+                node->childs.insert(node->childs.begin() + i, next->childs[0]);
+                next->childs.erase(next->childs.begin());
+            }
+            child->n += 1;
+            next->n -= 1;
+        }
+
+        void fill(Node* node, int x){
+            if(x != 0 && node->childs[x-1]->n >= t){
+                borrowFromPrev(node, x);
+            }
+            else if(x != node->n && node->childs[x]->n >= t){
+                borrowFromSucc(node, x);
+            }
+            else{
+                if(x!= node->n){
+                    merge(node, x);
+                }
+                else{
+                    merge(node, x - 1);
+                }
+            }
+        }
         void deletion(Node* node, int x){
             int i = getMinimum(node, x);
+            for(int temp: node->keys) cout << temp << " ";
+            cout << "-"<<x<<endl;
             if(i < node->n && node->keys[i] == x){
                 if(node->leaf){
                     node->keys.erase(node->keys.begin() + i);
@@ -178,12 +246,12 @@ class BST{
                 }
                 else{
                     if (node->childs[i]->n >= t){
-                        int temp = getPredecessor(node);
+                        int temp = getPredecessor(node, i);
                         node->keys[i] = temp;
                         deletion(node->childs[i], temp);
                     } 
                     else if (node->childs[i + 1]->n >= t){
-                        int temp = getSuccessor(node);
+                        int temp = getSuccessor(node, i);
                         node->keys[i] = temp;
                         deletion(node->childs[i+1], temp);
                     }
@@ -194,7 +262,23 @@ class BST{
                 }
             }
             else{
+                if(node->leaf){
+                    cout<<"None";
+                }
+                else{
+                    bool flag = i == node->n;
+                    if (node->childs[i]->n < t){
+                        fill(node, i);
+                    }
+                    
 
+                    if(flag && i > node->n){
+                        deletion(node->childs[i-1], x);
+                    }
+                    else{
+                        deletion(node->childs[i], x);
+                    }
+                }
             }
         }
 };
@@ -205,6 +289,13 @@ int main(){
     for(int i = 0; i<20; i++) bst.insertion(i);
 
     bst.levelOrder();
+
+
+    for(int i = 0; i<20; i++) {
+        bst.deletion_pre(i);
+        bst.levelOrder();
+    }
+    
 
     return 0;
 }
