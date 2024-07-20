@@ -15,7 +15,11 @@ class Graph:
         else:
             self.data[edge[0]][edge[1]] = self.data[edge[1]][edge[0]] = 1
     
+    def deleteEdge():
+        pass
 
+    def deleteVertex():
+        pass
 
 if __name__ == '__main__':
     g = Graph(4)
