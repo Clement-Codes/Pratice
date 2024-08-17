@@ -13,6 +13,7 @@
         "vector": "cpp",
         "xhash": "cpp",
         "xlocinfo": "cpp",
-        "xstring": "cpp"
+        "xstring": "cpp",
+        "unordered_map": "cpp"
     }
 }
