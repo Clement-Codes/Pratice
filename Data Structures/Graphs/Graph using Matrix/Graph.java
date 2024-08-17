@@ -50,7 +50,33 @@ class GraphByMatrix{
     }
 
     void addVertex(){
-        for
+        Vector<Integer> temp = new Vector<Integer>();
+        for(int i = 0; i< this.n; i++){
+            this.graph.elementAt(i).add(0);
+        }
+        this.n += 1;
+        for(int i = 0; i< this.n; i++){
+            temp.add(0);
+        }
+        this.graph.add(temp);
+    }
+
+    void removeVertex(int x){
+        if(x >= this.n){
+            System.out.println("No Vertex found");
+        }
+        else{
+            while(x < this.n -1){
+                for(int i = 0; i<this.n ;i++){
+                    this.graph.get(i).set(x, graph.get(i).get(x + 1));
+                }
+                for(int i = 0; i<this.n ;i++){
+                    this.graph.get(x).set(i, graph.get(x + 1).get(i));
+                }
+                x++;
+            }
+            this.n -= 1;
+        }
     }
 }
 
@@ -64,13 +90,12 @@ public class Graph {
         g.addEdge(0, 2);
         g.addEdge(1, 2);
         g.addEdge(2, 3);    
+        g.addVertex();
+        g.addEdge(4, 1);
+        g.addEdge(4, 3);
         g.print();
-        // g.addVertex();
-        // g.addEdge(4, 1);
-        // g.addEdge(4, 3);
-        // g.print();
             
-        // g.removeVertex(1);
-        // g.print();
+        g.removeVertex(1);
+        g.print();
     }
 }
