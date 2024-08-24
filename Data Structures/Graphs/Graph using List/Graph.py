@@ -76,31 +76,31 @@ class GraphByList():
                 
 
 if __name__ == "__main__":
-    g = GraphByList(5)
+    # g = GraphByList(5)
  
-    g.addEdge(0, 1)
-    g.addEdge(0, 4)
-    g.addEdge(1, 2)
-    g.addEdge(1, 3)
-    g.addEdge(1, 4)
-    g.addEdge(2, 3)
-    g.addEdge(3, 4)
- 
-    g.print()
-
-    g.removeEdge(1, 4)
- 
-    g.print()
-    # g = GraphByList(6)
     # g.addEdge(0, 1)
-    # g.addEdge(0, 3)
     # g.addEdge(0, 4)
     # g.addEdge(1, 2)
-    # g.addEdge(3, 2)
-    # g.addEdge(4, 3)
+    # g.addEdge(1, 3)
+    # g.addEdge(1, 4)
+    # g.addEdge(2, 3)
+    # g.addEdge(3, 4)
+ 
+    # g.print()
 
-    # g.addVertex(5, 3, 2)
+    # g.removeEdge(1, 4)
+ 
     # g.print()
-    # print('__________________________')
-    # g.deleteVertex(4)
-    # g.print()
+    g = GraphByList(6)
+    g.addEdge(0, 1)
+    g.addEdge(0, 3)
+    g.addEdge(0, 4)
+    g.addEdge(1, 2)
+    g.addEdge(3, 2)
+    g.addEdge(4, 3)
+
+    g.addVertex(5, 3, 2)
+    g.print()
+    print('__________________________')
+    g.deleteVertex(4)
+    g.print()
