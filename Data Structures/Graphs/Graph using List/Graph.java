@@ -1,5 +1,4 @@
 import java.util.Vector;
-import java.util.LinkedList;
 class Node{
     int data;
     Node next;
